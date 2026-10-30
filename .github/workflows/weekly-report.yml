@@ -1,0 +1,26 @@
+name: Weekly report
+
+# PortWatch publishes new data weekly (with a few days' lag). This job rebuilds
+# the report from live data every Wednesday and keeps it as a downloadable
+# artifact. Nothing is committed back to the repository.
+on:
+  schedule:
+    - cron: "17 6 * * 3"
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - run: maritime-flow -v analyze --target "Suez" --comparator "Good Hope" --event red_sea --out reports/red-sea
+      - uses: actions/upload-artifact@v4
+        with:
+          name: red-sea-report
+          path: reports/red-sea
+          retention-days: 30
