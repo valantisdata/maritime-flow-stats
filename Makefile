@@ -4,7 +4,7 @@ install:
 	pip install -e ".[dev,app]"
 
 test:
-	pytest --cov=maritime-flow --cov-report=term-missing
+	pytest --cov=maritime_flow --cov-report=term-missing
 
 lint:
 	ruff check src tests

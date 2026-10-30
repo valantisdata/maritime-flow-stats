@@ -12,13 +12,13 @@ jobs:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - run: pip install -e ".[dev]"
       - run: ruff check src tests
-      - run: pytest --cov=maritime-flow --cov-report=term-missing
+      - run: pytest --cov=maritime_flow --cov-report=term-missing
       - name: Demo run (synthetic data, no network)
         run: maritime-flow demo --out reports/demo
