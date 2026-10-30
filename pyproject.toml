@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "maritime-flow-stats"
+version = "0.2.0"
+description = "Statistical analysis of maritime chokepoint and port traffic using IMF PortWatch data"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Valantis Fagogenis" }]
+keywords = ["statistics", "time-series", "shipping", "maritime", "AIS", "change-point", "forecasting", "synthetic-control", "causal-inference"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "numpy>=1.24",
+    "pandas>=2.2",
+    "scipy>=1.11",
+    "matplotlib>=3.7",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.4"]
+db = ["psycopg[binary]>=3.1"]
+app = ["streamlit>=1.32"]
+
+[project.scripts]
+maritime-flow = "maritime_flow.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+ignore = ["E501"]
+
+[tool.setuptools.package-data]
+maritime_flow = ["sql/*.sql"]
