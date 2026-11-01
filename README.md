@@ -183,7 +183,7 @@ IMF statistics. Raw data is not redistributed in this repository; it is
 downloaded by the user at run time. Details and the IMF terms are in
 [DATA_SOURCES.md](DATA_SOURCES.md).
 
-Code: MIT licence, see [LICENSE](LICENSE).
+Code: © 2026 Valantis Fagogenis. All rights reserved. See [LICENSE](LICENSE).
 
 ## Limitations
 

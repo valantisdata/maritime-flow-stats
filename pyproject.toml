@@ -8,12 +8,12 @@ version = "0.2.0"
 description = "Statistical analysis of maritime chokepoint and port traffic using IMF PortWatch data"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = { text = "Proprietary. All rights reserved." }
 authors = [{ name = "Valantis Fagogenis" }]
 keywords = ["statistics", "time-series", "shipping", "maritime", "AIS", "change-point", "forecasting", "synthetic-control", "causal-inference"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "License :: Other/Proprietary License",
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
 dependencies = [
