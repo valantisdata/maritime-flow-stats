@@ -110,7 +110,7 @@ def make_port_frame(
     common: np.ndarray | None = None,
     exposure: float = 1.0,
 ) -> pd.DataFrame:
-    """Daily port calls and trade volumes (metric tons) in the Daily_Trade_Data layout."""
+    """Daily port calls and trade volumes (metric tons) in the Daily_Ports_Data layout."""
     dates = pd.date_range(start, end, freq="D")
     calls = simulate_counts(dates, base_calls, shift_date, shift_ratio, dispersion=40.0,
                             seed=seed, common=common, exposure=exposure)

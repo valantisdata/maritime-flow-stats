@@ -75,6 +75,30 @@ def test_arcgis_error_payload_raises():
         client(ErrSession()).query("chokepoints_daily")
 
 
+def test_transient_arcgis_error_is_retried():
+    # ArcGIS Online answers some valid requests with "Invalid URL" while a layer
+    # is republished; the client should retry those instead of failing.
+    class FlakySession(FakeSession):
+        def get(self, url, params, timeout):
+            self.calls.append(params)
+            if len(self.calls) <= 3:
+                return FakeResponse({"error": {"code": 400, "message": "Invalid URL"}})
+            return FakeResponse({"features": [{"attributes": {"ObjectId": 1}}]})
+
+    s = FlakySession()
+    assert len(client(s).query("chokepoints_daily")) == 1
+    assert len(s.calls) == 4
+
+
+def test_string_dates_from_dateonly_fields_are_parsed():
+    from maritime_flow.data.cleaning import clean_daily
+
+    raw = pd.DataFrame({"date": ["2026-10-24", "2026-10-25"], "portid": ["chokepoint1"] * 2,
+                        "portname": ["Suez Canal"] * 2, "n_total": [40, 46]})
+    panel, _ = clean_daily(raw)
+    assert list(panel["date"].dt.strftime("%Y-%m-%d")) == ["2026-10-24", "2026-10-25"]
+
+
 def test_cache_roundtrip(tmp_path):
     s = FakeSession(n_rows=5)
     c = PortWatchClient(session=s, cache_dir=tmp_path, sleep=lambda _: None)

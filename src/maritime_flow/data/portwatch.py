@@ -24,10 +24,23 @@ from maritime_flow.config import DEFAULT_CACHE_DIR, LAYERS
 log = logging.getLogger(__name__)
 
 RETRY_STATUS = {429, 500, 502, 503, 504}
+# ArcGIS Online sometimes answers a valid request with an error inside a 200
+# response while a hosted layer is being republished ("Invalid URL", or a 5xx
+# code in the payload). Those are worth retrying; a malformed query is not.
+TRANSIENT_ARCGIS_MESSAGES = ("invalid url",)
+MAX_WAIT_SECONDS = 20.0
 
 
 class PortWatchError(RuntimeError):
     """Raised when the service returns an error or cannot be reached."""
+
+
+def _is_transient(err: dict) -> bool:
+    code = err.get("code")
+    message = str(err.get("message", "")).lower()
+    return (isinstance(code, int) and (code >= 500 or code == 429)) or any(
+        m in message for m in TRANSIENT_ARCGIS_MESSAGES
+    )
 
 
 class _Retryable(Exception):
@@ -50,7 +63,7 @@ class PortWatchClient:
     session: requests.Session | None = None
     page_size: int = 1000
     timeout: float = 30.0
-    max_retries: int = 4
+    max_retries: int = 12
     backoff: float = 2.0
     cache_dir: Path | None = DEFAULT_CACHE_DIR
     cache_ttl_hours: float = 24.0
@@ -76,11 +89,14 @@ class PortWatchClient:
                     raise _Retryable(f"HTTP {resp.status_code}")
                 resp.raise_for_status()
                 payload = resp.json()
+                if "error" in payload and _is_transient(payload["error"]):
+                    err = payload["error"]
+                    raise _Retryable(f"ArcGIS error {err.get('code')}: {err.get('message')}")
             except (requests.ConnectionError, requests.Timeout, _Retryable) as exc:
                 last_exc = exc
                 if attempt == self.max_retries:
                     break
-                wait = self.backoff**attempt
+                wait = min(self.backoff**attempt, MAX_WAIT_SECONDS)
                 log.warning("request failed (%s), retrying in %.1fs", exc, wait)
                 self.sleep(wait)
                 continue

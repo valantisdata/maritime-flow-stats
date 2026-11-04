@@ -14,7 +14,7 @@ Endpoints used (public ArcGIS feature services, no API key):
 |---|---|
 | Daily chokepoint transits | `Daily_Chokepoints_Data/FeatureServer/0` |
 | Chokepoint metadata | `PortWatch_chokepoints_database/FeatureServer/0` |
-| Daily port activity and trade estimates | `Daily_Trade_Data/FeatureServer/0` |
+| Daily port activity and trade estimates | `Daily_Ports_Data/FeatureServer/0` |
 | Port metadata | `PortWatch_ports_database/FeatureServer/0` |
 
 The same rules apply to data stored in a local database (`maritime-flow db load`) or

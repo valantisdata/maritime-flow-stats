@@ -8,7 +8,7 @@ ARCGIS_ROOT = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/service
 LAYERS = {
     "chokepoints_daily": f"{ARCGIS_ROOT}/Daily_Chokepoints_Data/FeatureServer/0/query",
     "chokepoints_meta": f"{ARCGIS_ROOT}/PortWatch_chokepoints_database/FeatureServer/0/query",
-    "ports_daily": f"{ARCGIS_ROOT}/Daily_Trade_Data/FeatureServer/0/query",
+    "ports_daily": f"{ARCGIS_ROOT}/Daily_Ports_Data/FeatureServer/0/query",
     "ports_meta": f"{ARCGIS_ROOT}/PortWatch_ports_database/FeatureServer/0/query",
 }
 
