@@ -25,25 +25,17 @@ log = logging.getLogger(__name__)
 
 RETRY_STATUS = {429, 500, 502, 503, 504}
 # ArcGIS Online sometimes answers a valid request with an error inside a 200
-# response while a hosted layer is being republished ("Invalid URL", "Object
-# reference not set...", or a 5xx code in the payload). After the IMF
+# response while a hosted layer is being republished. After the IMF
 # republished the daily layers in late October 2026 most requests failed this
-# way for days, so the client retries many times with short waits. A malformed
-# query gets a different message and still fails at once.
-TRANSIENT_ARCGIS_MESSAGES = ("invalid url", "object reference not set")
+# way for days, each time with a different message ("Invalid URL", "Object
+# reference not set...", "Invalid query parameters"), so every error payload is
+# retried, many times with short waits. The queries this client sends are fixed
+# and tested, so a genuinely bad query only costs a few retries before failing.
 MAX_WAIT_SECONDS = 8.0
 
 
 class PortWatchError(RuntimeError):
     """Raised when the service returns an error or cannot be reached."""
-
-
-def _is_transient(err: dict) -> bool:
-    code = err.get("code")
-    message = str(err.get("message", "")).lower()
-    return (isinstance(code, int) and (code >= 500 or code == 429)) or any(
-        m in message for m in TRANSIENT_ARCGIS_MESSAGES
-    )
 
 
 class _Retryable(Exception):
@@ -92,7 +84,7 @@ class PortWatchClient:
                     raise _Retryable(f"HTTP {resp.status_code}")
                 resp.raise_for_status()
                 payload = resp.json()
-                if "error" in payload and _is_transient(payload["error"]):
+                if "error" in payload:
                     err = payload["error"]
                     raise _Retryable(f"ArcGIS error {err.get('code')}: {err.get('message')}")
             except (requests.ConnectionError, requests.Timeout, _Retryable) as exc:
