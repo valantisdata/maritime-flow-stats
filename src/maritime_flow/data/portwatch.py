@@ -25,10 +25,13 @@ log = logging.getLogger(__name__)
 
 RETRY_STATUS = {429, 500, 502, 503, 504}
 # ArcGIS Online sometimes answers a valid request with an error inside a 200
-# response while a hosted layer is being republished ("Invalid URL", or a 5xx
-# code in the payload). Those are worth retrying; a malformed query is not.
-TRANSIENT_ARCGIS_MESSAGES = ("invalid url",)
-MAX_WAIT_SECONDS = 20.0
+# response while a hosted layer is being republished ("Invalid URL", "Object
+# reference not set...", or a 5xx code in the payload). After the IMF
+# republished the daily layers in late October 2026 most requests failed this
+# way for days, so the client retries many times with short waits. A malformed
+# query gets a different message and still fails at once.
+TRANSIENT_ARCGIS_MESSAGES = ("invalid url", "object reference not set")
+MAX_WAIT_SECONDS = 8.0
 
 
 class PortWatchError(RuntimeError):
@@ -63,7 +66,7 @@ class PortWatchClient:
     session: requests.Session | None = None
     page_size: int = 1000
     timeout: float = 30.0
-    max_retries: int = 12
+    max_retries: int = 30
     backoff: float = 2.0
     cache_dir: Path | None = DEFAULT_CACHE_DIR
     cache_ttl_hours: float = 24.0
